@@ -4193,7 +4193,7 @@ REFERENCES:
          [http://www-igm.univ-mlv.fr/~jyt/ARTICLES/plactic.ps]
 
 .. [LLWC2011] Chien-Hung Lin, Jia-Jie Liu, Yue-Li Wang, William Chung-Kung Yen,
-              *The Hub Number of Sierpinski-Like Graphs*, Theory Comput Syst
+              *The Hub Number of Sierpinski-Like Graphs*, Theory Comput Systf
               (2011), vol 49, :doi:`10.1007/s00224-010-9286-3`
 
 .. [LLYCL2005] \H. J. Lee, S. J. Lee, J. H. Yoon, D. H. Cheon, and J. I. Lee,
@@ -4202,6 +4202,11 @@ REFERENCES:
 
 .. [LLZ2014] \K. Lee, \L. Li, and \A. Zelevinsky, *Greedy elements in rank 2
              cluster algebras*, Selecta Math. 20 (2014), 57-82.
+
+.. [LL2023] \I-Cheng Liao, \Hsueh-I Lu. *A Simple 2-Approximation for Maximum-Leaf Spanning Tree*, 
+            International Journal of Foundations of Computer Science (2023). 
+            Volume 34, Number 07, 795--805.
+            :doi:`10.1142/s0129054123420029`, :arxiv:`2303.0312`
 
 .. [LM2004] Lapointe, L. and Morse, J. 'Order Ideals in Weak Subposets
             of Young's Lattice and Associated Unimodality Conjectures'. Ann.

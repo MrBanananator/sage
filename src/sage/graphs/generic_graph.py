@@ -4623,6 +4623,115 @@ class GenericGraph(GenericGraph_pyx):
             return edges, vertices
         return edges
 
+    def approx_max_leaf_spanning_tree(self):
+        r"""
+        Return a 2-approximation maximum leaf spanning tree of G. That is, a spanning tree with a 
+        at least half the maximum possible number of leaf nodes.
+
+        This method implements the simple O(m)-time 2-approximation algorithm from [LL2023]_.
+
+        TESTS:
+
+        A graph with a single vertex::
+
+            sage: G = Graph(1)
+            sage: G.approx_max_leaf_spanning_tree()
+            Graph on 1 vertex
+
+        Path graph of size 3::
+
+            sage: G = graphs.PathGraph(3)
+            sage: G.approx_max_leaf_spanning_tree()
+            Graph on 3 vertices
+
+        Petersen graph::
+
+            sage: G = graphs.PetersenGraph()
+            sage: G.approx_max_leaf_spanning_tree()
+            Graph on 10 vertices
+
+        Tietze graph::
+
+            sage: G = graphs.TietzeGraph()
+            sage: G.approx_max_leaf_spanning_tree()
+            Graph on 12 vertices
+
+        Complex large grid graph::
+
+            sage: G = graphs.GridGraph([3,4,5])
+            sage: G.approx_max_leaf_spanning_tree()
+            Graph on 60 vertices
+
+        This method is for undirected graphs only::
+
+            sage: DiGraph().approx_max_leaf_spanning_tree()
+            Traceback (most recent call last):
+            ...
+            ValueError: this method is for undirected graphs only
+        """
+        if self.is_directed():
+            raise ValueError("this method is for undirected graphs only")
+        self._scream_if_not_simple()
+
+        from sage.graphs.graph import Graph
+        from collections import deque
+
+        # If the graph has less than three vertices, the MLST is simply the graph itself.
+        if self.order() < 3:
+            return self
+
+        # Initialise data structures.
+        T = Graph()
+        u = None
+        W0, W1, W2 = deque(), deque(), deque()
+        unseen_neighbors = {v: set(self.neighbors(v)) for v in self}
+
+        # Find an arbitrary vertex of degree >= 2
+        for v in self:
+            if not u and self.degree(v) >= 2:
+                u = v
+                break
+
+        for v in self:
+            if v != u and u in unseen_neighbors[v]:
+                unseen_neighbors[v].remove(u)
+
+        # Loop until the tree spans all vertices of the graph
+        while T.order() != self.order():
+            if W2:
+                u = W2.pop()
+                if len(unseen_neighbors[u]) == 1:
+                    W1.appendleft(u)
+                    continue
+            elif W1:
+                u = W1.pop()
+                if len(unseen_neighbors[u]) == 1:
+                    [v] = unseen_neighbors[u]
+                    if len(unseen_neighbors[v]) < 2:
+                        W0.appendleft(u)
+                        continue
+            elif W0:
+                u = W0.popleft()
+
+            # Expand the tree at vertex u
+            T.add_vertex(u)
+            to_remove = {}
+            for n in unseen_neighbors[u]:
+                T.add_edge((u, n))
+                W2.appendleft(n)
+
+                to_remove[n] = set()
+                for (w, _) in self.edges(vertices=n, labels=False, sort_vertices=False):
+                    to_remove[n].add(w)
+            
+            # Remove expanded vertices from all unseen neighbor lists
+            for n in to_remove:
+                for w in to_remove[n]:
+                    unseen_neighbors[w].remove(n)
+
+        return T
+
+
     def min_spanning_tree(self,
                           weight_function=None,
                           algorithm="Prim_Boost",
