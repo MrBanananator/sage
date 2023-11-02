@@ -4686,17 +4686,17 @@ class GenericGraph(GenericGraph_pyx):
         W0, W1, W2 = deque(), deque(), deque()
         unseen_neighbors = {v: set(self.neighbors(v)) for v in self}
 
-        # Find an arbitrary vertex of degree >= 2
+        # Find an arbitrary vertex of degree >= 2.
         for v in self:
             if not u and self.degree(v) >= 2:
                 u = v
                 break
 
-        for v in self:
-            if v != u and u in unseen_neighbors[v]:
-                unseen_neighbors[v].remove(u)
+        # Remove u from its neighbors unseen_neighbors lists.
+        for v in unseen_neighbors[u]:
+            unseen_neighbors[v].remove(u)
 
-        # Loop until the tree spans all vertices of the graph
+        # Loop until the tree spans all vertices of the graph.
         while T.order() != self.order():
             if W2:
                 u = W2.pop()
@@ -4713,21 +4713,19 @@ class GenericGraph(GenericGraph_pyx):
             elif W0:
                 u = W0.popleft()
 
-            # Expand the tree at vertex u
+            # Expand the tree at vertex u.
             T.add_vertex(u)
-            to_remove = {}
             for n in unseen_neighbors[u]:
                 T.add_edge((u, n))
                 W2.appendleft(n)
 
-                to_remove[n] = set()
+                # Remove neighbor from all unseen_neighbors lists.
                 for (w, _) in self.edges(vertices=n, labels=False, sort_vertices=False):
-                    to_remove[n].add(w)
-            
-            # Remove expanded vertices from all unseen neighbor lists
-            for n in to_remove:
-                for w in to_remove[n]:
-                    unseen_neighbors[w].remove(n)
+                    if w == u:
+                        continue
+                    elif w in unseen_neighbors and n in unseen_neighbors[w]:
+                        unseen_neighbors[w].remove(n)
+            unseen_neighbors[u].clear()
 
         return T
 
